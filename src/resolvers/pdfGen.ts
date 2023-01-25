@@ -1,39 +1,42 @@
 import fs from "fs";
-import path from "path";
-import { PDFDocument, StandardFonts } from "pdf-lib";
+import * as pdf from 'html-pdf';
+import handlebars from "handlebars";
+
 const PUBLIC_PATH = "src/public";
-const TEMPLATE_PATH = `${PUBLIC_PATH}/template.pdf`;
-const NEW_CERT_PATH = `${PUBLIC_PATH}/certificate.pdf`;
-const USER_NAME = "Fabio Ribeiro de Carvalho";
-const POSITION_ADJUST = -100;
-const FONT_SIZE = 32;
+const TEMPLATE_HTML_PATH = `${PUBLIC_PATH}/certificate-template.hbs`;
+const userNameMocked = "Hello World PDF! ";
+const pdfConfig: pdf.CreateOptions = {
+  width: "470px",
+  height: "362px",
+  type: "pdf",
+};
 
-const adaptUserName = (userName: string) => {
-  if (userName.length > 45) {
-    userName = userName.slice(0, 45);
-  }
+function useHandlebars(template: string) {
+  const handlebarsTemplate = handlebars.compile(template);
 
-  return userName.trim();
+  return handlebarsTemplate({ userName: userNameMocked });
 }
 
-export const pdfResolver = async () => {
-  const userName = adaptUserName(USER_NAME)
-  const dataBuffer = fs.readFileSync(path.resolve(TEMPLATE_PATH));
-  const srcPdfDoc = await PDFDocument.load(dataBuffer);
-  const pdfDoc = await srcPdfDoc.copy();
-  const helveticaFont = await pdfDoc.embedFont(StandardFonts.Helvetica);
+function generatePdf(html: string): Promise<any> {
+  return new Promise((resolve, reject) => {
+    pdf.create(html, pdfConfig).toBuffer((err, buffer) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(buffer);
+      }
+    });
+  });
+}
 
-  const page = pdfDoc.getPage(0);
-  page.setFont(helveticaFont);
-  const textWidth = helveticaFont.widthOfTextAtSize(userName, FONT_SIZE);
-  const textHeight = helveticaFont.heightAtSize(FONT_SIZE);
-  const x = (page.getWidth() - textWidth) / 2;
-  const y = (page.getHeight() - (textHeight + POSITION_ADJUST)) / 2;
+export async function pdfResolver() {
+  const htmlTemplate = fs.readFileSync(TEMPLATE_HTML_PATH, "utf8");
 
-  page.drawText(userName, { x, y, size: FONT_SIZE, font: helveticaFont });
-  fs.writeFileSync(NEW_CERT_PATH, await pdfDoc.save());
+  const handlebarsTemplate = useHandlebars(htmlTemplate);
+  console.log("LOG: template with handlebars", handlebarsTemplate);
 
-  console.log("LOG: pdf generated");
+  const pdfBuffer = await generatePdf(handlebarsTemplate);
+  const pdfBase64 = pdfBuffer.toString('base64');
 
-  return "Hello World .PDF";
+  return pdfBase64;
 };
