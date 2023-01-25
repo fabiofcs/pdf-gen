@@ -9,9 +9,15 @@
         "plugin:prettier/recommended"
     ],
     "parserOptions": {
-        "project": "./tsconfig.json"
+        "sourceType": "module",
+        "ecmaVersion": 2020,
+        "parser": "@typescript-eslint/parser"
     },
     "rules": {
+        "semi": [
+            2,
+            "always"
+        ],
         "import-helpers/order-imports": [
             "warn",
             {

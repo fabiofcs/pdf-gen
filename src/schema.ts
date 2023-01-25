@@ -1,18 +1,18 @@
-import { createSchema } from 'graphql-yoga'
-import { pdfResolver } from './resolvers/pdfGen'
+import { createSchema } from "graphql-yoga";
 
+import { pdfResolver } from "./resolvers/pdfGen";
 
 const typeDefs = /* GraphQL */ `
-type Query {
-   pdf: String
-}
+  type Query {
+    pdf: String
+  }
 `;
 
 export const schema = createSchema({
-    typeDefs,
-    resolvers: {
-        Query: {
-            pdf: pdfResolver
-        }
-    }
-})
+  typeDefs,
+  resolvers: {
+    Query: {
+      pdf: pdfResolver,
+    },
+  },
+});

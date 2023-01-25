@@ -1,11 +1,12 @@
-import { createServer } from 'node:http'
-import { createYoga } from 'graphql-yoga'
-import { schema } from './schema'
+import { createYoga } from "graphql-yoga";
+import { createServer } from "node:http";
 
-const yoga = createYoga({ schema })
+import { schema } from "./schema";
 
-const server = createServer(yoga)
+const yoga = createYoga({ schema });
+
+const server = createServer(yoga);
 
 server.listen(4000, () => {
-    console.info('Server is running on http://localhost:4000/graphql')
-})
+  console.info("Server is running on http://localhost:4000/graphql");
+});
