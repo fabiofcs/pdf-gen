@@ -4,12 +4,19 @@ import puppeteer from "puppeteer";
 
 const PUBLIC_PATH = "src/public";
 const TEMPLATE_HTML_PATH = `${PUBLIC_PATH}/certificate-template.hbs`;
-const userNameMocked = "Hello World!";
+const mockDate = new Intl.DateTimeFormat("en-US", { day: "numeric", month: "long", year: "numeric" }).format(new Date());
+const contextHandlebarsTemplate = {
+  firstName: "Hello",
+  lastName: "World",
+  trainingName: "Test training",
+  companyName: "Compacting FETTE",
+  createdCertDate: mockDate
+}
 
 function useHandlebars(template: string) {
   const handlebarsTemplate = handlebars.compile(template);
 
-  return handlebarsTemplate({ userName: userNameMocked });
+  return handlebarsTemplate(contextHandlebarsTemplate);
 }
 
 async function htmlToPdf(html: string): Promise<Buffer> {
